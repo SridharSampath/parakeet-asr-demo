@@ -2,11 +2,8 @@ import streamlit as st
 import torch
 import os
 import tempfile
-import torchaudio
 from nemo.collections.asr.models import ASRModel
 from pydub import AudioSegment
-import numpy as np
-import csv
 import datetime
 import pandas as pd
 import time
@@ -128,9 +125,10 @@ def load_model():
             # Move to appropriate device
             model = model.to(DEVICE)
             
-            # Use mixed precision for better performance when using GPU
-            if DEVICE == "cuda":
-                model = model.to(torch.bfloat16)
+            # Disabled according to https://github.com/SridharSampath/parakeet-asr-demo/issues/2
+            # # Use mixed precision for better performance when using GPU
+            # if DEVICE == "cuda":
+            #     model = model.to(torch.bfloat16)
                 
             custom_success(f"Model loaded successfully on {DEVICE.upper()}!")
             return model
@@ -230,8 +228,8 @@ def transcribe_audio(audio_path, show_progress=True):
                             elapsed = time.time() - start_time
                             if elapsed >= estimated_total_time:
                                 break
-                            progress = min(elapsed / estimated_total_time, 0.95)  # Max at 95% until completion
-                            progress_bar.progress(progress)
+                            # progress = min(elapsed / estimated_total_time, 0.95)  # Max at 95% until completion
+                            # progress_bar.progress(progress)
                             time.sleep(estimated_total_time / 100)
                     
                     # Start progress update in separate thread
@@ -362,7 +360,7 @@ if page == "Transcribe":
 
     with col1:
         # File uploader with expanded format support
-        uploaded_file = st.file_uploader(f"Upload an audio file (WAV or FLAC)", 
+        uploaded_file = st.file_uploader("Upload an audio file (WAV or FLAC)", 
                                         type=SUPPORTED_FORMATS)
 
     with col2:
